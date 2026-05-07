@@ -1,0 +1,25 @@
+{
+  "nearby": {"label": "In der Nähe"},
+  "see-all": {"label": "Alle anzeigen"},
+  "heading": {
+    "Betriebsart": "Betriebsart",
+    "Küche": "Küche",
+    "Lage": "Lage",
+    "Bewusst einkaufen": "Bewusst einkaufen",
+    "Geschäfte": "Geschäfte",
+    "Bekleidung": "Bekleidung",
+    "Ausflugsziele": "Ausflugsziele",
+    "Unterhaltung": "Unterhaltung",
+    "Sport & Freizeit": "Sport & Freizeit",
+    "Erholung & Gesundheit": "Erholung & Gesundheit",
+    "Mobil & Service": "Mobil & Service",
+    "eMobilität": "eMobilität",
+    "interaktiv": "interaktiv",
+    "Öffentliche Gebäude": "Öffentliche Gebäude",
+    "Blaue Linie": "Blaue Linie"
+  },
+  "group": {
+    "Orte & Tätigkeiten von Interesse (POI)": "Orte & Tätigkeiten von Interesse (POI)",
+    "Gastronomien (Restaurants)": "Gastronomien (Restaurants)"
+  }
+}

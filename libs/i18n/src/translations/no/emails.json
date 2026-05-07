@@ -1,0 +1,23 @@
+{
+  "verification": {
+    "subject": "Velkommen til {appName}! Bekreft e-postadressen din",
+    "greeting": "Velkommen til {appName}{firstNamePart}!",
+    "greetingKodi": "Velkommen til {appName}{firstNamePart}!",
+    "intro": "Takk for at du registrerte deg. For å fullføre registreringen og sikre kontoen din må du bekrefte e-postadressen.",
+    "cta": "Bekreft e-postadresse",
+    "expiryNotice": "<strong>Viktig:</strong> Denne bekreftelseslenken utløper om 24 timer. Hvis du ikke opprettet kontoen, kan du ignorere e-posten eller bruke lenken nedenfor for å avbryte.",
+    "cancelText": "Hvis du ikke opprettet denne kontoen, kan du",
+    "cancelLinkText": "klikke her for å avbryte",
+    "fallback": "Hvis knappen ikke virker, kopier og lim inn denne lenken i nettleseren:"
+  },
+  "passwordReset": {
+    "subject": "Tilbakestill {appName} passordet ditt",
+    "greeting": "Hei{firstNamePart}!",
+    "greetingKodi": "Hei{firstNamePart}!",
+    "intro": "Vi har mottatt en forespørsel om å tilbakestille passordet ditt. Klikk på knappen nedenfor for å tilbakestille det.",
+    "cta": "Tilbakestill passord",
+    "expiryNotice": "Denne lenken utløper om 1 time.",
+    "securityNotice": "Hvis du ikke ba om å tilbakestille passordet, kan du ignorere denne e-posten. Passordet ditt forblir uendret.",
+    "fallback": "Hvis knappen ikke virker, kopier og lim inn denne lenken i nettleseren:"
+  }
+}

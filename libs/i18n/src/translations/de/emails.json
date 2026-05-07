@@ -1,0 +1,23 @@
+{
+  "verification": {
+    "subject": "Willkommen bei {appName}! Bitte bestätige deine E-Mail-Adresse",
+    "greeting": "Willkommen bei {appName}{firstNamePart}!",
+    "greetingKodi": "Willkommen bei {appName}{firstNamePart}!",
+    "intro": "Vielen Dank für deine Registrierung. Um deine Anmeldung abzuschließen und dein Konto zu schützen, bestätige bitte deine E-Mail-Adresse.",
+    "cta": "E-Mail-Adresse bestätigen",
+    "expiryNotice": "<strong>Wichtig:</strong> Dieser Bestätigungslink läuft in 24 Stunden ab. Wenn du kein Konto erstellt hast, kannst du diese E-Mail ignorieren oder den untenstehenden Link zum Abbrechen verwenden.",
+    "cancelText": "Wenn du dieses Konto nicht erstellt hast, kannst du",
+    "cancelLinkText": "hier klicken, um abzubrechen",
+    "fallback": "Falls die Schaltfläche nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein:"
+  },
+  "passwordReset": {
+    "subject": "Setze dein {appName} Passwort zurück",
+    "greeting": "Hallo{firstNamePart}!",
+    "greetingKodi": "Moin{firstNamePart}!",
+    "intro": "Wir haben eine Anfrage zum Zurücksetzen deines Passworts erhalten. Klicke auf die Schaltfläche unten, um es zurückzusetzen.",
+    "cta": "Passwort zurücksetzen",
+    "expiryNotice": "Dieser Link läuft in 1 Stunde ab.",
+    "securityNotice": "Wenn du keine Passwort-Zurücksetzung angefordert hast, ignoriere diese E-Mail bitte. Dein Passwort bleibt unverändert.",
+    "fallback": "Falls die Schaltfläche nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein:"
+  }
+}

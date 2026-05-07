@@ -1,0 +1,44 @@
+// Prisma schema for City microservice
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../../../../../node_modules/.prisma/client-city"
+  binaryTargets = ["native", "linux-musl"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("CITY_DATABASE_URL")
+}
+
+// City model - for geographic data management
+model City {
+  id             String   @id @default(uuid())
+  name           String
+  country        String
+  state          String?
+  latitude       Float
+  longitude      Float
+  population     Int?
+  timezone       String?
+  metadata       Json?
+  headerImageUrl String?
+  darkLogoUrl    String?
+  lightLogoUrl   String?
+  key            String?
+  parentCityId   String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Hierarchy relations
+  parentCity City?  @relation("CityHierarchy", fields: [parentCityId], references: [id], onDelete: SetNull)
+  childCities City[] @relation("CityHierarchy")
+
+  @@unique([name, country, state])
+  @@index([country])
+  @@index([latitude, longitude])
+  @@index([isActive])
+  @@index([parentCityId])
+  @@index([key])
+  @@map("cities")
+}

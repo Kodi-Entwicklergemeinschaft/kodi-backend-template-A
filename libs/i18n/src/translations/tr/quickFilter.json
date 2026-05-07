@@ -1,0 +1,25 @@
+{
+  "nearby": {"label": "Yakında"},
+  "see-all": {"label": "Tümünü gör"},
+  "heading": {
+    "Betriebsart": "İşletme türü",
+    "Küche": "Mutfak",
+    "Lage": "Konum",
+    "Bewusst einkaufen": "Bilinçli alışveriş",
+    "Geschäfte": "Mağazalar",
+    "Bekleidung": "Giyim",
+    "Ausflugsziele": "Gezi destinasyonları",
+    "Unterhaltung": "Eğlence",
+    "Sport & Freizeit": "Spor ve boş zaman",
+    "Erholung & Gesundheit": "Dinlenme ve sağlık",
+    "Mobil & Service": "Mobilite ve hizmetler",
+    "eMobilität": "E-mobilite",
+    "interaktiv": "İnteraktif",
+    "Öffentliche Gebäude": "Kamu binaları",
+    "Blaue Linie": "Mavi Hat"
+  },
+  "group": {
+    "Orte & Tätigkeiten von Interesse (POI)": "İlgi alanları ve aktiviteler (POI)",
+    "Gastronomien (Restaurants)": "Restoranlar"
+  }
+}

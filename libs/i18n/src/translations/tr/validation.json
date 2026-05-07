@@ -1,0 +1,19 @@
+{
+  "email": "{field} geçerli bir e-posta adresi olmalıdır",
+  "required": "{field} gereklidir",
+  "minLength": "{field} en az {min} karakter olmalıdır",
+  "maxLength": "{field} en fazla {max} karakter olabilir",
+  "min": "{field} en az {min} olmalıdır",
+  "max": "{field} en fazla {max} olabilir",
+  "string": "{field} bir dize olmalıdır",
+  "number": "{field} bir sayı olmalıdır",
+  "boolean": "{field} bir boolean değer olmalıdır",
+  "enum": "{field} izin verilen değerlerden biri olmalıdır",
+  "uuid": "{field} geçerli bir UUID olmalıdır",
+  "url": "{field} geçerli bir URL olmalıdır",
+  "date": "{field} geçerli bir tarih olmalıdır",
+  "array": "{field} bir dizi olmalıdır",
+  "object": "{field} bir nesne olmalıdır",
+  "notEmpty": "{field} boş olmamalıdır",
+  "isOptional": "{field} isteğe bağlıdır"
+}

@@ -1,0 +1,134 @@
+# Prometheus configuration for KODI Microservices
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'kodi-microservices'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# Load alert rules
+rule_files:
+  - 'alerts/*.yml'
+
+# Scrape configurations
+scrape_configs:
+  # Microservices - Auth
+  - job_name: 'auth'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['auth:3001']
+        labels:
+          service: 'auth'
+          type: 'microservice'
+
+  # Microservices - Users
+  - job_name: 'users'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['users:3002']
+        labels:
+          service: 'users'
+          type: 'microservice'
+
+  # Microservices - City
+  - job_name: 'city'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['city:3003']
+        labels:
+          service: 'city'
+          type: 'microservice'
+
+  # Microservices - Core
+  - job_name: 'core'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['core:3004']
+        labels:
+          service: 'core'
+          type: 'microservice'
+
+  # Microservices - Notification
+  - job_name: 'notification'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['notification:3005']
+        labels:
+          service: 'notification'
+          type: 'microservice'
+
+  # Microservices - Scheduler
+  - job_name: 'scheduler'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['scheduler:3006']
+        labels:
+          service: 'scheduler'
+          type: 'microservice'
+
+  # Microservices - Admin
+  - job_name: 'admin'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['admin:3008']
+        labels:
+          service: 'admin'
+          type: 'microservice'
+
+  # FUTURE SERVICE - Terminal microservice
+  # Uncomment when terminal service is activated
+  # - job_name: 'terminal'
+  #   metrics_path: '/metrics'
+  #   static_configs:
+  #     - targets: ['terminal:3009']
+  #       labels:
+  #         service: 'terminal'
+  #         type: 'microservice'
+
+  # PostgreSQL Exporter
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+        labels:
+          service: 'postgres'
+          type: 'database'
+
+  # Redis Exporter
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+        labels:
+          service: 'redis'
+          type: 'cache'
+
+  # RabbitMQ Exporter (built-in Prometheus endpoint)
+  - job_name: 'rabbitmq'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['rabbitmq:15692']
+        labels:
+          service: 'rabbitmq'
+          type: 'message-queue'
+
+  # Node Exporter (Host System Metrics)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'node'
+          type: 'infrastructure'
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+          type: 'monitoring'

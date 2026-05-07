@@ -1,0 +1,86 @@
+// Prisma schema for Auth microservice
+// This schema handles sessions and audit logs only (not user data)
+// User data is stored in users.prisma (users database)
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../../../../../node_modules/.prisma/client-auth"
+  binaryTargets = ["native", "linux-musl"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("AUTH_DATABASE_URL")
+}
+
+// Session model - Tracks authentication sessions (JWT, OAuth, BIND_ID)
+// Note: userId references User.id in users database (no FK due to multi-database architecture)
+model Session {
+  id            String         @id @default(uuid())
+  userId        String         // Reference to User.id in users database
+  tokenType     TokenType
+  tokenHash      String?       // Hashed token for validation (JWT tokens stored in Redis)
+  provider      AuthProvider   @default(LOCAL)
+  metadata      Json?          // Provider-specific data (OAuth tokens, BIND_ID data, device info, etc.)
+  deviceId      String?        // Mobile device identifier (iOS IDFV or Android ID)
+  devicePlatform String?        // Device platform (IOS or ANDROID)
+  expiresAt     DateTime
+  revokedAt     DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([userId])
+  @@index([deviceId])
+  @@index([tokenType])
+  @@index([provider])
+  @@index([expiresAt])
+  @@index([revokedAt])
+  @@map("sessions")
+}
+
+// AuthAuditLog - Security audit trail for all authentication actions
+// Note: userId references User.id in users database
+model AuthAuditLog {
+  id           String      @id @default(uuid())
+  userId       String?     // Reference to User.id (null for failed login attempts)
+  action       AuthAction
+  success      Boolean
+  failureReason String?    // Error message if action failed
+  ipAddress    String?
+  userAgent    String?
+  metadata     Json?       // Additional context (device info, location, etc.)
+  createdAt    DateTime    @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([success])
+  @@index([createdAt])
+  @@map("auth_audit_logs")
+}
+
+enum TokenType {
+  JWT
+  OAUTH
+  BIND_ID
+  REFRESH
+}
+
+enum AuthProvider {
+  LOCAL       // Local email/password authentication
+  OAUTH_GOOGLE
+  OAUTH_GITHUB
+  OAUTH_FACEBOOK
+  BIND_ID     // German government authentication
+}
+
+enum AuthAction {
+  LOGIN
+  LOGOUT
+  TOKEN_REFRESH
+  PASSWORD_RESET
+  PASSWORD_CHANGE
+  EMAIL_VERIFICATION
+  TWO_FACTOR_ENABLE
+  TWO_FACTOR_DISABLE
+  SESSION_REVOKE
+  REGISTRATION_ATTEMPT
+}

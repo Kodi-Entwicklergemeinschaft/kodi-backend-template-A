@@ -1,0 +1,25 @@
+{
+  "nearby": {"label": "Nearby"},
+  "see-all": {"label": "See all"},
+  "heading": {
+    "Betriebsart": "Type of establishment",
+    "Küche": "Cuisine",
+    "Lage": "Location",
+    "Bewusst einkaufen": "Conscious shopping",
+    "Geschäfte": "Shops",
+    "Bekleidung": "Clothing",
+    "Ausflugsziele": "Excursion destinations",
+    "Unterhaltung": "Entertainment",
+    "Sport & Freizeit": "Sports & leisure",
+    "Erholung & Gesundheit": "Relaxation & health",
+    "Mobil & Service": "Mobility & services",
+    "eMobilität": "E-mobility",
+    "interaktiv": "Interactive",
+    "Öffentliche Gebäude": "Public buildings",
+    "Blaue Linie": "Blue Line"
+  },
+  "group": {
+    "Orte & Tätigkeiten von Interesse (POI)": "Places & activities of interest (POI)",
+    "Gastronomien (Restaurants)": "Restaurants"
+  }
+}

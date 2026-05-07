@@ -1,0 +1,184 @@
+// Prisma schema for Users microservice
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../../../../../node_modules/.prisma/client-users"
+  binaryTargets = ["native", "linux-musl"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("USERS_DATABASE_URL")
+}
+
+// User model - for user management
+model User {
+  id                  String            @id @default(uuid())
+  email               String?           @unique
+  username            String?           @unique
+  password            String?
+  role                UserRole          @default(CITIZEN)
+  userType            UserType          @default(REGISTERED)
+  guestId             String?           @unique
+  deviceId            String?
+  devicePlatform      DevicePlatform?
+  migratedFromGuestId String?
+  cityId              String?
+  firstName           String?
+  lastName            String?
+  salutationCode      String?          // Reference to Salutation.code (e.g., "MR", "MRS", "DR")
+  profilePhotoUrl     String?
+  preferredLanguage   String?          // ISO 639-1 language code (e.g., 'en', 'de')
+  hasVehicle          Boolean          @default(false)
+  emailVerified       Boolean          @default(false)
+  notificationsEnabled Boolean         @default(true) // Whether user accepts push notifications
+  isActive            Boolean           @default(true)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  deletedAt           DateTime?
+
+  @@index([email])
+  @@index([emailVerified])
+  @@index([username])
+  @@index([guestId])
+  @@index([deviceId])
+  @@index([userType])
+  @@index([isActive])
+  @@index([role])
+  @@index([cityId])
+  @@index([preferredLanguage])
+  @@index([salutationCode])
+  @@unique([deviceId, devicePlatform])
+  @@map("users")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  CITY_ADMIN
+  CITIZEN
+}
+
+enum UserType {
+  REGISTERED
+  GUEST
+}
+
+enum DevicePlatform {
+  IOS
+  ANDROID
+}
+
+// Salutation model - Stores salutation options with multi-language support
+model Salutation {
+  id        String   @id @default(uuid())
+  code      String   // Unique code like "MR", "MRS", "MS", "DR", "PROF"
+  label     String   // Translated label (e.g., "Mr", "Herr", "السيد")
+  locale    String   // e.g., 'en', 'de', 'ar'
+  sortOrder Int      @default(0) // For display ordering
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([code, locale])
+  @@index([code])
+  @@index([locale])
+  @@index([isActive])
+  @@index([sortOrder])
+  @@map("salutations")
+}
+
+// Terms of Use model - Stores terms versions with multi-language support
+// cityId is null for general terms, or specific city ID for city-specific terms
+model TermsOfUse {
+  id              String   @id @default(uuid())
+  version         String   // Custom format like "2024-01"
+  title           String
+  content         String   // Full terms content (can be HTML/markdown)
+  locale          String   // e.g., 'en', 'de', 'ar'
+  cityId          String?  // Reference to City.id (null = general terms, specific ID = city-specific)
+  isActive        Boolean  @default(true)
+  isLatest        Boolean  @default(false) // Only one should be true per locale+cityId combination
+  gracePeriodDays Int      @default(7) // Grace period in days
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  createdBy       String?  // Reference to User.id who created this version
+
+  // Relations
+  acceptances     UserTermsAcceptance[]
+
+  @@unique([version, locale, cityId])
+  @@index([isActive])
+  @@index([isLatest])
+  @@index([version])
+  @@index([locale])
+  @@index([cityId])
+  @@map("terms_of_use")
+}
+
+// User Terms Acceptance - Tracks when users accepted which version
+model UserTermsAcceptance {
+  id         String      @id @default(uuid())
+  userId     String      // Reference to User.id
+  termsId    String      // Reference to TermsOfUse.id
+  version    String      // Denormalized for quick access
+  locale     String      // Denormalized locale
+  ipAddress  String?
+  userAgent  String?
+  acceptedAt DateTime    @default(now())
+
+  // Relations
+  terms      TermsOfUse @relation(fields: [termsId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, termsId])
+  @@index([userId])
+  @@index([termsId])
+  @@index([version])
+  @@index([acceptedAt])
+  @@map("user_terms_acceptance")
+}
+
+// UserDevice model - Tracks FCM tokens and device metadata for push notifications
+// Supports multiple devices per user (e.g., phone + tablet)
+model UserDevice {
+  id          String         @id @default(uuid())
+  userId      String         // Reference to User.id
+  deviceId    String?        // Optional device identifier from client
+  fcmToken    String         // Firebase Cloud Messaging token
+  platform    DevicePlatform // iOS or Android
+  appVersion  String?        // App version (e.g., "1.2.3")
+  osVersion   String?        // OS version (e.g., "iOS 17.0", "Android 14")
+  language    String?        // Device language (e.g., "en", "de")
+  cityId      String?        // User's current city (optional, can be derived from User.cityId)
+  isActive    Boolean        @default(true) // Set to false when token is invalid or user logs out
+  lastSeenAt  DateTime       @default(now()) // Last time this device was seen/updated
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@unique([fcmToken]) // Each FCM token should be unique across all users
+  @@index([userId])
+  @@index([userId, isActive])
+  @@index([fcmToken])
+  @@index([isActive])
+  @@index([platform])
+  @@index([lastSeenAt])
+  @@map("user_devices")
+}
+
+// UserTopicSubscription model - Tracks logical topic subscriptions for push notifications
+// Represents user preferences for high-level topics (city alerts, global events, etc.)
+// Clients subscribe/unsubscribe device tokens to matching FCM topics
+model UserTopicSubscription {
+  id        String   @id @default(uuid())
+  userId    String   // Reference to User.id
+  topicKey  String   // Topic identifier (e.g., "CITY_123", "GLOBAL_EVENTS", "ANNOUNCEMENTS")
+  cityId    String?  // Optional city ID for city-specific topics (e.g., "CITY_123")
+  isActive  Boolean  @default(true) // User can toggle subscriptions on/off
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, topicKey]) // One subscription per user per topic
+  @@index([userId])
+  @@index([userId, isActive])
+  @@index([topicKey])
+  @@index([cityId])
+  @@map("user_topic_subscriptions")
+}

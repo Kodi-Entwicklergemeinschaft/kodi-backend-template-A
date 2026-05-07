@@ -1,0 +1,740 @@
+// Prisma schema for Core microservice
+// Contains: SystemConfig, Permissions, Listings
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../../../../../node_modules/.prisma/client-core"
+  binaryTargets = ["native", "linux-musl"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("CORE_DATABASE_URL")
+}
+
+// SystemConfig - System-wide configuration
+model SystemConfig {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  category  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([isActive])
+  @@map("system_configs")
+}
+
+// Permission model - Defines available permissions
+model Permission {
+  id          String   @id @default(uuid())
+  resource    String   // e.g., "users", "cities", "notifications"
+  action      String   // e.g., "read", "write", "delete"
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  rolePermissions RolePermission[]
+
+  @@unique([resource, action])
+  @@index([resource])
+  @@index([action])
+  @@map("permissions")
+}
+
+// RolePermission - Maps roles to permissions
+model RolePermission {
+  id           String     @id @default(uuid())
+  role         UserRole
+  permissionId String
+  createdAt    DateTime   @default(now())
+
+  // Relations
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([role, permissionId])
+  @@index([role])
+  @@index([permissionId])
+  @@map("role_permissions")
+}
+
+// UserCityAssignment - Links users to cities with specific roles
+// Note: userId and cityId are stored as strings (no FK due to multi-database architecture)
+model UserCityAssignment {
+  id             String   @id @default(uuid())
+  userId         String   // Reference to User.id in users database
+  cityId         String   // Reference to City.id in city database
+  role           UserRole
+  canManageAdmins Boolean  @default(false)
+  assignedBy     String?  // Reference to User.id who created this assignment
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([userId, cityId])
+  @@index([userId])
+  @@index([cityId])
+  @@index([role])
+  @@index([isActive])
+  @@index([canManageAdmins])
+  @@index([assignedBy])
+  @@map("user_city_assignments")
+}
+
+// Listing model - Content/listings created by citizens and moderated by city admins
+model Listing {
+  id                String                     @id @default(uuid())
+  slug              String                     @unique
+  title             String
+  summary           String?
+  content           String
+  status            ListingStatus              @default(PENDING)
+  moderationStatus  ListingModerationStatus    @default(PENDING)
+  visibility        ListingVisibility          @default(PUBLIC)
+  isFeatured        Boolean                    @default(false)
+  featuredUntil     DateTime?
+  publishAt         DateTime?
+  expireAt          DateTime?
+  languageCode      String?
+  sourceUrl         String?
+  heroImageUrl      String?
+  metadata          Json?
+  viewCount         Int                        @default(0)
+  likeCount         Int                        @default(0)
+  shareCount        Int                        @default(0)
+  createdByUserId   String?
+  lastEditedByUserId String?
+  reviewedBy        String?
+  reviewedAt        DateTime?
+  reviewNotes       String?
+  sourceType        ListingSourceType          @default(MANUAL)
+  externalSource    String?
+  externalId        String?
+  syncHash          String?
+  contentChecksum   String?
+  lastSyncedAt      DateTime?
+  ingestedAt        DateTime?
+  ingestedByService String?
+  ingestNotes       String?
+  primaryCityId     String?
+  venueName         String?
+  address           String?
+  geoLat            Decimal?                   @db.Decimal(9, 6)
+  geoLng            Decimal?                   @db.Decimal(9, 6)
+  timezone          String?
+  contactPhone      String?
+  contactEmail      String?
+  website           String?
+  eventStart        DateTime?
+  eventEnd          DateTime?
+  isAllDay          Boolean                    @default(false)
+  organizerName     String?
+  organizerContact  String?
+  registrationUrl      String?
+  onlineAppointmentUrl String?
+  isArchived        Boolean                    @default(false)
+  archivedAt        DateTime?
+  archivedBy        String?
+  createdAt         DateTime                   @default(now())
+  updatedAt         DateTime                   @updatedAt
+
+  // Relations
+  favorites              UserFavorite[]
+  reminders              ListingReminder[]
+  categories             ListingCategory[]
+  cities                 ListingCity[]
+  media                  ListingMedia[]
+  timeIntervals          ListingTimeInterval[]
+  timeIntervalExceptions ListingTimeIntervalException[]
+  tags                   ListingTag[]
+  filters                ListingFilter[]
+
+  @@index([status])
+  @@index([moderationStatus])
+  @@index([visibility])
+  @@index([publishAt])
+  @@index([expireAt])
+  @@index([isFeatured])
+  @@index([primaryCityId])
+  @@index([sourceType])
+  @@index([createdAt])
+  @@index([updatedAt])
+  @@map("listings")
+}
+
+model Category {
+  id                    String    @id @default(uuid())
+  name                  String
+  slug                  String    @unique
+  description           String?
+  subtitle              String?
+  imageUrl              String?
+  iconUrl               String?
+  headerBackgroundColor String?   // Hex color code
+  contentBackgroundColor String?  // Hex color code
+  type                  CategoryType?
+  parentId              String?
+  languageCode          String?   // Source language of the category content (e.g., "en", "de")
+  isActive              Boolean   @default(true)
+  viewType              CategoryViewType @default(LISTINGS)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryHierarchy")
+
+  listings ListingCategory[]
+  cityCategories CityCategory[]
+  categoryRequests CategoryRequest[]
+  categoryFilters CategoryFilter[]
+  subServices CategorySubService[]
+
+  @@index([parentId])
+  @@index([type])
+  @@index([isActive])
+  @@map("categories")
+}
+
+model ListingCategory {
+  id         String   @id @default(uuid())
+  listingId  String
+  categoryId String
+  assignedAt DateTime @default(now())
+
+  listing  Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, categoryId])
+  @@index([categoryId])
+  @@index([listingId])
+  @@map("listing_categories")
+}
+
+model ListingCity {
+  id           String   @id @default(uuid())
+  listingId    String
+  cityId       String
+  isPrimary    Boolean  @default(false)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, cityId])
+  @@index([cityId])
+  @@index([listingId])
+  @@map("listing_cities")
+}
+
+// Tile model - Ad tiles created by Super Admin and City Admins
+model Tile {
+  id                    String   @id @default(uuid())
+  slug                  String   @unique
+  backgroundImageUrl    String?
+  iconImageUrl          String?
+  headerBackgroundColor String?  // Hex color code
+  header                String
+  subheader             String?
+  description           String?  // Content/description
+  contentBackgroundColor String? // Hex color code
+  websiteUrl            String?
+  openInExternalBrowser Boolean  @default(false) // false = in-app, true = external
+  displayOrder          Int      @default(0)
+  isActive              Boolean  @default(false)
+  sendNotification      Boolean  @default(false)
+  languageCode          String?  // Source language of the tile content (e.g., "en", "de")
+  publishAt              DateTime?
+  expireAt               DateTime?
+  createdByUserId        String?
+  lastEditedByUserId     String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  // Relations
+  cities                 TileCity[]
+  notificationLogs       TileNotificationLog[]
+
+  @@index([isActive])
+  @@index([publishAt])
+  @@index([expireAt])
+  @@index([displayOrder])
+  @@map("tiles")
+}
+
+model TileCity {
+  id           String   @id @default(uuid())
+  tileId       String
+  cityId       String
+  isPrimary    Boolean  @default(false)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tile Tile @relation(fields: [tileId], references: [id], onDelete: Cascade)
+
+  @@unique([tileId, cityId])
+  @@index([cityId])
+  @@index([tileId])
+  @@map("tile_cities")
+}
+
+model TileNotificationLog {
+  id        String   @id @default(uuid())
+  tileId    String
+  topic     String
+  title     String
+  body      String
+  /// Per-locale / per-city FCM payloads actually emitted (topic, title, body, cityId, fcmData).
+  emissions Json?
+  sentAt    DateTime @default(now())
+
+  tile      Tile     @relation(fields: [tileId], references: [id], onDelete: Cascade)
+
+  @@index([tileId])
+  @@map("tile_notification_logs")
+}
+
+model CategorySubService {
+  id           String             @id @default(uuid())
+  categoryId   String
+  itemType     SubServiceItemType
+  itemId       String
+  /// When null, API responses use the linked tile’s displayOrder (TILE) or 0 (CATEGORY/MAP).
+  displayOrder Int?
+  displayName  String?
+  isActive     Boolean            @default(true)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, itemType, itemId])
+  @@index([categoryId, isActive, displayOrder])
+  @@map("category_sub_services")
+}
+
+model ListingMedia {
+  id        String           @id @default(uuid())
+  listingId String
+  type      ListingMediaType
+  url       String
+  altText   String?
+  caption   String?
+  order     Int              @default(0)
+  metadata  Json?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@index([type])
+  @@map("listing_media")
+}
+
+model ListingTimeInterval {
+  id         String                 @id @default(uuid())
+  listingId  String
+  weekdays   String[]
+  start      DateTime
+  end        DateTime
+  tz         String
+  freq       ListingRecurrenceFreq  @default(NONE)
+  interval   Int                    @default(1)
+  repeatUntil DateTime?
+  metadata   Json?
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @updatedAt
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@index([start])
+  @@index([repeatUntil])
+  @@index([freq, interval])
+  @@map("listing_time_intervals")
+}
+
+model ListingTimeIntervalException {
+  id        String   @id @default(uuid())
+  listingId String
+  date      DateTime
+  opensAt   String?
+  closesAt  String?
+  isClosed  Boolean  @default(false)
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@index([date])
+  @@map("listing_time_interval_exceptions")
+}
+
+model CityCategory {
+  id                    String   @id @default(uuid())
+  cityId                String
+  categoryId            String
+  displayName           String?  // Custom display name for this city (defaults to category.name if null)
+  description           String?  // Custom description for this city category
+  subtitle              String?  // Custom subtitle for this city category
+  displayOrder          Int      @default(0)
+  imageUrl              String?  // Custom background image URL for this city category
+  iconUrl               String?  // Custom icon URL for this city category
+  headerBackgroundColor String? // Hex color code
+  contentBackgroundColor String? // Hex color code
+  languageCode          String?  // Source language of the displayName (e.g., "en", "de")
+  visibility            CategoryVisibility @default(PUBLIC)
+  isActive              Boolean  @default(true)
+  addedBy               String?
+  addedAt               DateTime @default(now())
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([cityId, categoryId])
+  @@index([cityId])
+  @@index([categoryId])
+  @@index([displayOrder])
+  @@index([visibility])
+  @@map("city_categories")
+}
+
+model CategoryRequest {
+  id          String                  @id @default(uuid())
+  cityId      String
+  categoryId  String
+  status      CategoryRequestStatus   @default(PENDING)
+  requestedBy String
+  requestedAt DateTime                @default(now())
+  handledBy   String?
+  handledAt   DateTime?
+  notes       String?
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([cityId, categoryId, requestedBy, status])
+  @@index([cityId, status])
+  @@map("category_requests")
+}
+
+// UserFavorite - Track user favorites (works for both guests and registered users)
+// Note: userId and listingId are stored as strings (no FK due to multi-database architecture)
+model UserFavorite {
+  id        String   @id @default(uuid())
+  userId    String   // Reference to User.id in users database (can be guest or registered)
+  listingId String   // Reference to Listing.id
+  createdAt DateTime @default(now())
+
+  // Relations
+  listing   Listing   @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId])
+  @@index([userId])
+  @@index([listingId])
+  @@map("user_favorites")
+}
+
+// ListingReminder - Track sent push notification reminders for favorite events
+// Prevents duplicate reminders for the same event occurrence
+model ListingReminder {
+  id             String          @id @default(uuid())
+  userId         String          // Reference to User.id in users database
+  listingId      String          // Reference to Listing.id
+  occurrenceStart DateTime        // The specific occurrence start time (for recurring events)
+  reminderType   ListingReminderType
+  sentAt         DateTime        @default(now())
+  createdAt      DateTime        @default(now())
+
+  // Relations
+  listing        Listing         @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId, occurrenceStart, reminderType])
+  @@index([userId])
+  @@index([listingId])
+  @@index([occurrenceStart])
+  @@index([reminderType])
+  @@index([sentAt])
+  @@map("listing_reminders")
+}
+
+// ParkingSpace - Cached parking data from Mobilithek integration
+// Based on Smart Data Models OffStreetParking schema
+model ParkingSpace {
+  id                    String   @id @default(uuid())
+  cityId                String   // Reference to City.id from city database
+  integrationId         String   // Reference to Integration.id from integration database
+  parkingSiteId         String   // Unique ID from Mobilithek API
+  name                  String?
+  description           String?
+  type                  String   @default("OffStreetParking")
+
+  // Location
+  latitude              Decimal  @db.Decimal(9, 6)
+  longitude             Decimal  @db.Decimal(9, 6)
+  address               String?
+
+  // Capacity information
+  totalSpotNumber       Int?
+  occupiedSpotNumber    Int?
+  availableSpotNumber   Int?
+  occupancy             Decimal? @db.Decimal(5, 4) // 0-1 ratio
+
+  // Vehicle type slots (based on Smart Data Models schema)
+  fourWheelerSlots      Json?    // { availableSlotNumber, totalSlotNumber, occupiedSlotNumber }
+  twoWheelerSlots       Json?    // { availableSlotNumber, totalSlotNumber, occupiedSlotNumber }
+  unclassifiedSlots     Json?    // { availableSpotNumber, totalSpotNumber, occupiedSpotNumber }
+
+  // Status
+  status                String?  // open, closed, unknown
+  outOfServiceSlotNumber Int?
+
+  // Categories and metadata
+  category              Json?    // Array of category strings
+  allowedVehicleType    Json?    // Array of allowed vehicle types
+  chargeType            Json?    // Array of charge types
+  acceptedPaymentMethod Json?    // Array of payment methods
+
+  // Pricing
+  priceRatePerMinute    Decimal? @db.Decimal(10, 4)
+  priceCurrency         String?
+
+  // Source language for translations
+  languageCode          String?  // Source language of name/description (e.g., "de" for Mobilithek data)
+
+  // Timestamps
+  occupancyModified     DateTime?
+  observationDateTime   DateTime?
+  lastSyncAt            DateTime @default(now())
+
+  // Additional metadata from API
+  metadata              Json?    // Store full API response for reference
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@unique([cityId, parkingSiteId])
+  @@index([cityId])
+  @@index([integrationId])
+  @@index([parkingSiteId])
+  @@index([status])
+  @@map("parking_spaces")
+}
+
+// Translation model - Polymorphic translations for entities and generic keys
+model Translation {
+  id           String   @id @default(uuid())
+  key          String?  // For generic keys not tied to an entity
+  entityType   String?  // e.g., "listing", "city", "category", "tag"
+  entityId     String?  // Reference to entity ID (string, no FK due to multi-database architecture)
+  field        String?  // e.g., "title", "summary", "description", "label"
+  locale       String   // Language code matching i18n (e.g., "en", "de", "dk")
+  sourceLocale String?  // Language of the original text
+  value        String   // Translated text
+  sourceHash   String?  // Hash/checksum of source text to avoid re-translation when unchanged
+  source       String?  // Translation source: MANUAL, AUTO_DEEPL, IMPORT, etc.
+  metadata     Json?    // Provider-specific metadata (e.g., DeepL response info)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([entityType, entityId, field, locale])
+  @@unique([key, locale])
+  @@index([entityType, entityId, field, locale])
+  @@index([key, locale])
+  @@index([entityType, entityId])
+  @@index([locale])
+  @@index([sourceHash])
+  @@map("translations")
+}
+
+// Tag model - Generic tags from external integrations (e.g., Destination One categories)
+model Tag {
+  id           String   @id @default(uuid())
+  provider     String   // e.g., "DESTINATION_ONE"
+  externalValue String  // Original value from external source (e.g., "Ausstellung")
+  label        String?  // Display label (can be translated via Translation model)
+  languageCode String?  // Source language of the tag (e.g., "de", "en")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  listings ListingTag[]
+
+  @@unique([provider, externalValue])
+  @@index([provider])
+  @@index([externalValue])
+  @@map("tags")
+}
+
+// ListingTag - Links listings to tags
+model ListingTag {
+  id        String   @id @default(uuid())
+  listingId String
+  tagId     String
+  createdAt DateTime @default(now())
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, tagId])
+  @@index([listingId])
+  @@index([tagId])
+  @@map("listing_tags")
+}
+
+// Filter - Quick filter values from external integrations (e.g. Destination One categories, cuisine_types, features)
+model Filter {
+  id           String   @id @default(uuid())
+  provider     String   // e.g. "DESTINATION_ONE"
+  field        String   // "category" | "cuisine_type" | "feature"
+  listingType  String   // "Gastro" | "POI" | "Event" | "Tour"
+  value        String   // Original value from API (e.g. "Bar", "international", "Übernachtung möglich")
+  label        String?  // Display label (translatable via Translation model)
+  languageCode String?  // Source language (e.g. "de")
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  listings ListingFilter[]
+  categoryFilters CategoryFilter[]
+
+  @@unique([provider, field, listingType, value])
+  @@index([provider])
+  @@index([field])
+  @@index([listingType])
+  @@index([isActive])
+  @@map("filters")
+}
+
+// ListingFilter - Links listings to filter values
+model ListingFilter {
+  id        String   @id @default(uuid())
+  listingId String
+  filterId  String
+  createdAt DateTime @default(now())
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  filter  Filter  @relation(fields: [filterId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, filterId])
+  @@index([listingId])
+  @@index([filterId])
+  @@map("listing_filters")
+}
+
+// CategoryFilter - Maps filters to categories with display metadata (heading, group, displayOrder)
+model CategoryFilter {
+  id           String   @id @default(uuid())
+  categoryId   String
+  filterId     String
+  displayName  String?  // Override label; if null, use filter.label or filter.value
+  heading      String   // Heading within category (e.g., "Betriebsart", "Küche")
+  group        String?  // Extra grouping for show-me-more (e.g., "Orte & Tätigkeiten von Interesse (POI)")
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  filter   Filter   @relation(fields: [filterId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, filterId])
+  @@index([categoryId])
+  @@index([filterId])
+  @@index([heading])
+  @@index([group])
+  @@map("category_filters")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  CITY_ADMIN
+  CITIZEN
+}
+
+enum ListingStatus {
+  PENDING      // Awaiting moderation
+  APPROVED     // Approved by city admin
+  REJECTED     // Rejected by city admin
+  DELETED      // Soft deleted
+}
+
+enum ListingModerationStatus {
+  PENDING
+  APPROVED
+  CHANGES_REQUESTED
+  REJECTED
+  ARCHIVED
+}
+
+enum ListingVisibility {
+  PUBLIC
+  CITY_ONLY
+  PRIVATE
+}
+
+enum ListingSourceType {
+  MANUAL
+  SCRAPER
+  INTEGRATION
+  API_IMPORT
+}
+
+enum ListingRecurrenceFreq {
+  NONE
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum ListingMediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+  AUDIO
+  OTHER
+}
+
+enum CategoryType {
+  NEWS
+  EVENT
+  GASTRO
+  TOUR
+  RESTAURANT
+  POI
+  HOTEL
+  ARTICLE
+  OTHER
+}
+
+enum CategoryViewType {
+  LISTINGS
+  SUB_SERVICES
+}
+
+enum SubServiceItemType {
+  TILE
+  CATEGORY
+  MAP
+}
+
+enum CategoryVisibility {
+  PUBLIC     // Visible to everyone (guests, citizens, anonymous)
+  CITIZEN    // Visible only to authenticated registered users
+  GUEST_ONLY // Visible only to guests/anonymous, hidden from logged-in users
+}
+
+enum CategoryRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ListingReminderType {
+  H24  // 24 hours before
+  H2   // 2 hours before
+}

@@ -1,0 +1,25 @@
+{
+  "nearby": {"label": "نزدیک"},
+  "see-all": {"label": "مشاهده همه"},
+  "heading": {
+    "Betriebsart": "نوع کسب",
+    "Küche": "آشپزی",
+    "Lage": "موقعیت",
+    "Bewusst einkaufen": "خرید آگاهانه",
+    "Geschäfte": "فروشگاه‌ها",
+    "Bekleidung": "پوشاک",
+    "Ausflugsziele": "مقاصد گردشگری",
+    "Unterhaltung": "سرگرمی",
+    "Sport & Freizeit": "ورزش و اوقات فراغت",
+    "Erholung & Gesundheit": "استراحت و سلامت",
+    "Mobil & Service": "تحرک و خدمات",
+    "eMobilität": "تحرک الکتریکی",
+    "interaktiv": "تعاملی",
+    "Öffentliche Gebäude": "ساختمان‌های عمومی",
+    "Blaue Linie": "خط آبی"
+  },
+  "group": {
+    "Orte & Tätigkeiten von Interesse (POI)": "مکان‌ها و فعالیت‌های مورد علاقه (POI)",
+    "Gastronomien (Restaurants)": "رستوران‌ها"
+  }
+}

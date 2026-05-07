@@ -1,0 +1,19 @@
+{
+  "email": "{field} skal være en gyldig e-mailadresse",
+  "required": "{field} er påkrævet",
+  "minLength": "{field} skal være mindst {min} tegn",
+  "maxLength": "{field} må højst være {max} tegn",
+  "min": "{field} skal være mindst {min}",
+  "max": "{field} må højst være {max}",
+  "string": "{field} skal være en streng",
+  "number": "{field} skal være et tal",
+  "boolean": "{field} skal være en boolesk værdi",
+  "enum": "{field} skal være en af de tilladte værdier",
+  "uuid": "{field} skal være en gyldig UUID",
+  "url": "{field} skal være en gyldig URL",
+  "date": "{field} skal være en gyldig dato",
+  "array": "{field} skal være et array",
+  "object": "{field} skal være et objekt",
+  "notEmpty": "{field} må ikke være tom",
+  "isOptional": "{field} er valgfri"
+}

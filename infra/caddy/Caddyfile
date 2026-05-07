@@ -1,0 +1,418 @@
+# Caddy configuration for KODI Microservices
+# Supports both development (nip.io) and production (static domain) setups
+#
+# Development: Set DEV_IP in .env (e.g., 192.168.1.100)
+#   - API_DOMAIN defaults to api.$DEV_IP.nip.io
+# Production: Set API_DOMAIN=kodi.kodi-app.de in .env
+# Transition: Set both API_DOMAIN and API_DOMAIN_LEGACY=api.$DEV_IP.nip.io
+#   - Serves both domains simultaneously during migration
+#
+# Caddy automatically handles HTTPS and HTTP to HTTPS redirects
+# Admin tools (pgAdmin, Grafana, etc.) use nip.io subdomains in both environments
+
+{
+    # Let's Encrypt email (set LETSENCRYPT_EMAIL in .env)
+    email $LETSENCRYPT_EMAIL
+
+    # Use staging CA for testing
+    # Uncomment the line below to use Let's Encrypt staging environment
+    # This is useful for testing to avoid rate limits
+    # acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+}
+
+# Single domain with path-based routing (supports dual domains during transition)
+# Caddy will automatically issue SSL certificate and redirect HTTP to HTTPS
+$API_DOMAIN $API_DOMAIN_LEGACY {
+
+    # Health check endpoint
+    handle /health {
+        respond "healthy" 200
+    }
+
+    # Frontend React App - serve static files for non-API routes
+    # This handles React Router by serving index.html for routes that don't match files
+    @notApi {
+        not path /api/*
+        not path /health
+    }
+    handle @notApi {
+        root * /var/www/frontend
+        file_server
+        try_files {path} /index.html
+    }
+
+    # Health check endpoints for each service
+    handle /api/auth/healthz {
+        uri strip_prefix /api/auth
+        reverse_proxy auth:3001
+    }
+
+    handle /api/users/healthz {
+        uri strip_prefix /api/users
+        reverse_proxy users:3002
+    }
+
+    handle /api/city/healthz {
+        uri strip_prefix /api/city
+        reverse_proxy city:3003
+    }
+
+    handle /api/core/healthz {
+        uri strip_prefix /api/core
+        reverse_proxy core:3004
+    }
+
+    handle /api/notification/healthz {
+        uri strip_prefix /api/notification
+        reverse_proxy notification:3005
+    }
+
+    handle /api/scheduler/healthz {
+        uri strip_prefix /api/scheduler
+        reverse_proxy scheduler:3006
+    }
+
+
+    handle /api/admin/healthz {
+        uri strip_prefix /api/admin
+        reverse_proxy admin:3008
+    }
+
+    # Metrics endpoints (restrict to private networks)
+    @auth_metrics {
+        path /api/auth/metrics
+        remote_ip 127.0.0.1 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
+    }
+    handle @auth_metrics {
+        uri strip_prefix /api/auth
+        reverse_proxy auth:3001
+    }
+
+    @users_metrics {
+        path /api/users/metrics
+        remote_ip 127.0.0.1 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
+    }
+    handle @users_metrics {
+        uri strip_prefix /api/users
+        reverse_proxy users:3002
+    }
+
+    @city_metrics {
+        path /api/city/metrics
+        remote_ip 127.0.0.1 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
+    }
+    handle @city_metrics {
+        uri strip_prefix /api/city
+        reverse_proxy city:3003
+    }
+
+    @core_metrics {
+        path /api/core/metrics
+        remote_ip 127.0.0.1 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
+    }
+    handle @core_metrics {
+        uri strip_prefix /api/core
+        reverse_proxy core:3004
+    }
+
+    @notification_metrics {
+        path /api/notification/metrics
+        remote_ip 127.0.0.1 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
+    }
+    handle @notification_metrics {
+        uri strip_prefix /api/notification
+        reverse_proxy notification:3005
+    }
+
+    @scheduler_metrics {
+        path /api/scheduler/metrics
+        remote_ip 127.0.0.1 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
+    }
+    handle @scheduler_metrics {
+        uri strip_prefix /api/scheduler
+        reverse_proxy scheduler:3006
+    }
+
+
+    @admin_metrics {
+        path /api/admin/metrics
+        remote_ip 127.0.0.1 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
+    }
+    handle @admin_metrics {
+        uri strip_prefix /api/admin
+        reverse_proxy admin:3008
+    }
+
+    # Swagger docs JSON endpoint
+    handle /api/auth/docs-json {
+        uri strip_prefix /api/auth
+        reverse_proxy auth:3001 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Prefix /api/auth
+        }
+    }
+
+    handle /api/users/docs-json {
+        uri strip_prefix /api/users
+        reverse_proxy users:3002 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Prefix /api/users
+        }
+    }
+
+    handle /api/city/docs-json {
+        uri strip_prefix /api/city
+        reverse_proxy city:3003 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Prefix /api/city
+        }
+    }
+
+    handle /api/core/docs-json {
+        uri strip_prefix /api/core
+        reverse_proxy core:3004 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Prefix /api/core
+        }
+    }
+
+    handle /api/notification/docs-json {
+        uri strip_prefix /api/notification
+        reverse_proxy notification:3005 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Prefix /api/notification
+        }
+    }
+
+    handle /api/scheduler/docs-json {
+        uri strip_prefix /api/scheduler
+        reverse_proxy scheduler:3006 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Prefix /api/scheduler
+        }
+    }
+
+
+    handle /api/admin/docs-json {
+        uri strip_prefix /api/admin
+        reverse_proxy admin:3008 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Prefix /api/admin
+        }
+    }
+
+    # Swagger docs UI endpoints
+    handle /api/auth/docs* {
+        uri strip_prefix /api/auth
+        reverse_proxy auth:3001 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Prefix /api/auth
+        }
+    }
+
+    handle /api/users/docs* {
+        uri strip_prefix /api/users
+        reverse_proxy users:3002 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Prefix /api/users
+        }
+    }
+
+    handle /api/city/docs* {
+        uri strip_prefix /api/city
+        reverse_proxy city:3003 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Prefix /api/city
+        }
+    }
+
+    handle /api/core/docs* {
+        uri strip_prefix /api/core
+        reverse_proxy core:3004 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Prefix /api/core
+        }
+    }
+
+    handle /api/notification/docs* {
+        uri strip_prefix /api/notification
+        reverse_proxy notification:3005 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Prefix /api/notification
+        }
+    }
+
+    handle /api/scheduler/docs* {
+        uri strip_prefix /api/scheduler
+        reverse_proxy scheduler:3006 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Prefix /api/scheduler
+        }
+    }
+
+
+    handle /api/admin/docs* {
+        uri strip_prefix /api/admin
+        reverse_proxy admin:3008 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Prefix /api/admin
+        }
+    }
+
+    # Auth service - strip /api/auth prefix
+    handle /api/auth* {
+        uri strip_prefix /api/auth
+        reverse_proxy auth:3001 {
+            header_up X-Forwarded-Proto https
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+        }
+    }
+
+    # Users service - strip /api/users prefix
+    handle /api/users* {
+        uri strip_prefix /api/users
+        reverse_proxy users:3002 {
+            header_up X-Forwarded-Proto https
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+        }
+    }
+
+    # City service - strip /api/city prefix
+    handle /api/city* {
+        uri strip_prefix /api/city
+        reverse_proxy city:3003 {
+            header_up X-Forwarded-Proto https
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+        }
+    }
+
+    # Core service - strip /api/core prefix completely (controller is root)
+    handle /api/core* {
+        uri strip_prefix /api/core
+        reverse_proxy core:3004 {
+            header_up X-Forwarded-Proto https
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+        }
+    }
+
+    # Notification service - strip /api/notification prefix
+    handle /api/notification* {
+        uri strip_prefix /api/notification
+        reverse_proxy notification:3005 {
+            header_up X-Forwarded-Proto https
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+        }
+    }
+
+    # Scheduler service - strip /api/scheduler prefix
+    handle /api/scheduler* {
+        uri strip_prefix /api/scheduler
+        reverse_proxy scheduler:3006 {
+            header_up X-Forwarded-Proto https
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+        }
+    }
+
+
+    # Admin service - strip /api/admin prefix
+    handle /api/admin* {
+        uri strip_prefix /api/admin
+        reverse_proxy admin:3008 {
+            header_up X-Forwarded-Proto https
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+        }
+    }
+
+
+    # Default response for unmatched routes
+    handle {
+        respond "Not Found" 404
+    }
+}
+
+# pgAdmin - Database administration tool
+# Accessible at: https://pgadmin.$DEV_IP.nip.io/
+pgadmin.$DEV_IP.nip.io {
+    reverse_proxy pgadmin:80 {
+        header_up X-Forwarded-Proto https
+        header_up X-Forwarded-Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+    }
+}
+
+# Redis Commander - Redis administration tool
+# Accessible at: https://redis.$DEV_IP.nip.io/
+redis.$DEV_IP.nip.io {
+    reverse_proxy redis-commander:8081 {
+        header_up X-Forwarded-Proto https
+        header_up X-Forwarded-Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+    }
+}
+
+# Grafana - Monitoring and visualization
+# Accessible at: https://grafana.$DEV_IP.nip.io/
+grafana.$DEV_IP.nip.io {
+    reverse_proxy grafana:3000 {
+        header_up X-Forwarded-Proto https
+        header_up X-Forwarded-Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+    }
+}
+
+# Prometheus - Metrics collection and querying
+# Accessible at: https://prometheus.$DEV_IP.nip.io/
+prometheus.$DEV_IP.nip.io {
+    reverse_proxy prometheus:9090 {
+        header_up X-Forwarded-Proto https
+        header_up X-Forwarded-Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+    }
+}
+
+# Alertmanager - Alert routing and management
+# Accessible at: https://alertmanager.$DEV_IP.nip.io/
+alertmanager.$DEV_IP.nip.io {
+    reverse_proxy alertmanager:9093 {
+        header_up X-Forwarded-Proto https
+        header_up X-Forwarded-Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+    }
+}
+
+# RabbitMQ Management UI - Message queue administration
+# Accessible at: https://rabbitmq.$DEV_IP.nip.io/
+rabbitmq.$DEV_IP.nip.io {
+    reverse_proxy rabbitmq:15672 {
+        header_up X-Forwarded-Proto https
+        header_up X-Forwarded-Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+    }
+}

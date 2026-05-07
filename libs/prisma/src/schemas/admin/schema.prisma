@@ -1,0 +1,37 @@
+// Prisma schema for Admin microservice
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../../../../../node_modules/.prisma/client-admin"
+  binaryTargets = ["native", "linux-musl"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("ADMIN_DATABASE_URL")
+}
+
+// Admin user model - for admin dashboard and operations
+model AdminUser {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  role      AdminRole @default(VIEWER)
+  firstName String?
+  lastName  String?
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+  @@index([deletedAt])
+  @@map("admin_users")
+}
+
+enum AdminRole {
+  ADMIN    // Full access to all operations
+  OPERATOR // Can perform operations but cannot manage other admins
+  VIEWER   // Read-only access
+}

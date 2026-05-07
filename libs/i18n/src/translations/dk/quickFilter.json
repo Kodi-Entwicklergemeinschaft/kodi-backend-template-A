@@ -1,0 +1,25 @@
+{
+  "nearby": {"label": "I nærheden"},
+  "see-all": {"label": "Se alle"},
+  "heading": {
+    "Betriebsart": "Virksomhedstype",
+    "Küche": "Køkken",
+    "Lage": "Beliggenhed",
+    "Bewusst einkaufen": "Bevidst indkøb",
+    "Geschäfte": "Butikker",
+    "Bekleidung": "Tøj",
+    "Ausflugsziele": "Udflugtsmål",
+    "Unterhaltung": "Underholdning",
+    "Sport & Freizeit": "Sport & fritid",
+    "Erholung & Gesundheit": "Afslapning & sundhed",
+    "Mobil & Service": "Mobilitet & service",
+    "eMobilität": "E-mobilitet",
+    "interaktiv": "Interaktiv",
+    "Öffentliche Gebäude": "Offentlige bygninger",
+    "Blaue Linie": "Blå linje"
+  },
+  "group": {
+    "Orte & Tätigkeiten von Interesse (POI)": "Steder og aktiviteter af interesse (POI)",
+    "Gastronomien (Restaurants)": "Restauranter"
+  }
+}

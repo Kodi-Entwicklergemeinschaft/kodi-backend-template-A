@@ -1,0 +1,40 @@
+{
+  "welcome": {
+    "title": "Welcome to {appName}!",
+    "body": "Hello {firstName}, welcome to {appName}. We're glad to have you here."
+  },
+  "info": {
+    "title": "Information",
+    "body": "{content}"
+  },
+  "warning": {
+    "title": "Warning",
+    "body": "{content}"
+  },
+  "error": {
+    "title": "Error",
+    "body": "{content}"
+  },
+  "success": {
+    "title": "Success",
+    "body": "{content}"
+  },
+  "alert": {
+    "title": "Alert",
+    "body": "{content}"
+  },
+  "generic": {
+    "title": "{subject}",
+    "body": "{content}"
+  },
+  "event": {
+    "reminder24h": {
+      "title": "Event Reminder: {eventTitle}",
+      "body": "Don't forget! \"{eventTitle}\" starts in 24 hours"
+    },
+    "reminder2h": {
+      "title": "Event Starting Soon: {eventTitle}",
+      "body": "\"{eventTitle}\" starts in 2 hours"
+    }
+  }
+}

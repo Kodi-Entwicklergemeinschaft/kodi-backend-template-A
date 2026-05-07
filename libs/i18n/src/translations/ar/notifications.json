@@ -1,0 +1,40 @@
+{
+  "welcome": {
+    "title": "مرحباً بك في {appName}!",
+    "body": "مرحباً {firstName}، أهلاً بك في {appName}. يسعدنا وجودك هنا."
+  },
+  "info": {
+    "title": "معلومات",
+    "body": "{content}"
+  },
+  "warning": {
+    "title": "تحذير",
+    "body": "{content}"
+  },
+  "error": {
+    "title": "خطأ",
+    "body": "{content}"
+  },
+  "success": {
+    "title": "نجاح",
+    "body": "{content}"
+  },
+  "alert": {
+    "title": "تنبيه",
+    "body": "{content}"
+  },
+  "generic": {
+    "title": "{subject}",
+    "body": "{content}"
+  },
+  "event": {
+    "reminder24h": {
+      "title": "تذكير بالحدث: {eventTitle}",
+      "body": "لا تنس! \"{eventTitle}\" يبدأ خلال 24 ساعة"
+    },
+    "reminder2h": {
+      "title": "الحدث يبدأ قريباً: {eventTitle}",
+      "body": "\"{eventTitle}\" يبدأ خلال ساعتين"
+    }
+  }
+}

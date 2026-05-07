@@ -1,0 +1,19 @@
+{
+  "email": "يجب أن يكون {field} عنوان بريد إلكتروني صالح",
+  "required": "{field} مطلوب",
+  "minLength": "يجب أن يكون {field} على الأقل {min} أحرف",
+  "maxLength": "يجب ألا يزيد {field} عن {max} حرف",
+  "min": "يجب أن يكون {field} على الأقل {min}",
+  "max": "يجب ألا يزيد {field} عن {max}",
+  "string": "يجب أن يكون {field} سلسلة نصية",
+  "number": "يجب أن يكون {field} رقم",
+  "boolean": "يجب أن يكون {field} قيمة منطقية",
+  "enum": "يجب أن يكون {field} أحد القيم المسموح بها",
+  "uuid": "يجب أن يكون {field} UUID صالح",
+  "url": "يجب أن يكون {field} عنوان URL صالح",
+  "date": "يجب أن يكون {field} تاريخ صالح",
+  "array": "يجب أن يكون {field} مصفوفة",
+  "object": "يجب أن يكون {field} كائن",
+  "notEmpty": "يجب ألا يكون {field} فارغ",
+  "isOptional": "{field} اختياري"
+}

@@ -1,0 +1,40 @@
+{
+  "welcome": {
+    "title": "Velkommen til {appName}!",
+    "body": "Hei {firstName}, velkommen til {appName}. Vi er glade for å ha deg her."
+  },
+  "info": {
+    "title": "Informasjon",
+    "body": "{content}"
+  },
+  "warning": {
+    "title": "Advarsel",
+    "body": "{content}"
+  },
+  "error": {
+    "title": "Feil",
+    "body": "{content}"
+  },
+  "success": {
+    "title": "Suksess",
+    "body": "{content}"
+  },
+  "alert": {
+    "title": "Alarm",
+    "body": "{content}"
+  },
+  "generic": {
+    "title": "{subject}",
+    "body": "{content}"
+  },
+  "event": {
+    "reminder24h": {
+      "title": "Hendelsespåminnelse: {eventTitle}",
+      "body": "Ikke glem! \"{eventTitle}\" starter om 24 timer"
+    },
+    "reminder2h": {
+      "title": "Hendelse starter snart: {eventTitle}",
+      "body": "\"{eventTitle}\" starter om 2 timer"
+    }
+  }
+}

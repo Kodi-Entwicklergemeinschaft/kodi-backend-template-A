@@ -1,0 +1,170 @@
+// Prisma schema for Notification microservice
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../../../../../node_modules/.prisma/client-notification"
+  binaryTargets = ["native", "linux-musl"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("NOTIFICATION_DATABASE_URL")
+}
+
+// Notification model - for multi-channel notifications
+// Note: userId is stored as String (foreign key to User in auth/users service)
+// Cross-service relationships are handled via IDs only (no FK constraints)
+model Notification {
+  id               String             @id @default(uuid())
+  userId           String             // Reference to User.id from auth/users service
+  type             NotificationType
+  channel          NotificationChannel
+  subject          String?
+  content          String
+  emailTemplate    String?            // Email template identifier
+  firebaseProjectId String?           // Reference to FirebaseProject.id
+  scheduleRunId    String?            // Reference to ScheduleRunLog.id in scheduler service (for auditing)
+  metadata         Json?
+  status           NotificationStatus @default(PENDING)
+  sentAt           DateTime?
+  readAt           DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([type])
+  @@index([channel])
+  @@index([firebaseProjectId])
+  @@index([scheduleRunId])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  INFO
+  WARNING
+  ERROR
+  SUCCESS
+  ALERT
+  EVENT_REMINDER
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  PUSH
+  IN_APP
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  DELIVERED
+  READ
+}
+
+// Verification token model - for email and SMS verification
+// Note: userId is stored as String (foreign key to User in users service)
+// Cross-service relationships are handled via IDs only (no FK constraints)
+model VerificationToken {
+  id          String             @id @default(uuid())
+  userId      String             // Reference to User.id from users service
+  type        VerificationType
+  channel     VerificationChannel
+  token       String             @unique // Secure token for verification link
+  identifier  String             // email address or phone number
+  expiresAt   DateTime           // Token expiration time (24 hours default)
+  verifiedAt  DateTime?          // When verification was completed
+  cancelledAt DateTime?          // When user clicked "It's not me"
+  attempts    Int                @default(0) // Number of verification attempts
+  maxAttempts Int                @default(5) // Maximum attempts allowed
+  status      VerificationStatus  @default(PENDING)
+  isUsed      Boolean            @default(false) // One-time use flag
+  metadata    Json?              // Additional metadata (ipAddress, userAgent, etc.)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([userId])
+  @@index([token])
+  @@index([identifier])
+  @@index([status])
+  @@index([expiresAt])
+  @@index([type])
+  @@map("verification_tokens")
+}
+
+enum VerificationType {
+  EMAIL
+  SMS
+}
+
+enum VerificationChannel {
+  EMAIL
+  SMS
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  EXPIRED
+  FAILED
+  CANCELLED
+  USED
+}
+
+// Password reset token model - for password reset functionality
+// Note: userId is stored as String (foreign key to User in users service)
+// Cross-service relationships are handled via IDs only (no FK constraints)
+model PasswordResetToken {
+  id          String                  @id @default(uuid())
+  userId      String                  // Reference to User.id from users service
+  token       String                  @unique // Secure token for reset link
+  email       String                  // Email address for password reset
+  expiresAt   DateTime                // Token expiration time (1 hour default)
+  usedAt      DateTime?               // When password was reset
+  attempts    Int                     @default(0) // Number of reset attempts
+  maxAttempts Int                     @default(3) // Maximum attempts allowed
+  status      PasswordResetStatus     @default(PENDING)
+  isUsed      Boolean                 @default(false) // One-time use flag
+  metadata    Json?                   // Additional metadata (ipAddress, userAgent, etc.)
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+
+  @@index([userId])
+  @@index([token])
+  @@index([email])
+  @@index([status])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+enum PasswordResetStatus {
+  PENDING
+  USED
+  EXPIRED
+  FAILED
+  CANCELLED
+}
+
+// FirebaseProject model - Manages Firebase projects per city
+// Note: cityId is stored as String (foreign key to City in city service)
+// Cross-service relationships are handled via IDs only (no FK constraints)
+model FirebaseProject {
+  id          String   @id @default(uuid())
+  cityId      String?  // Optional - null means default project for Kodi app
+  projectId   String   // Firebase project ID
+  projectName String   // Human-readable name
+  credentials Json     // Encrypted Firebase service account credentials
+  isActive    Boolean  @default(true)
+  isDefault   Boolean  @default(false) // Default project for Kodi app
+  metadata    Json?    // Additional configuration
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([cityId]) // One project per city (null cityId = default)
+  @@index([cityId])
+  @@index([isActive])
+  @@index([isDefault])
+  @@map("firebase_projects")
+}

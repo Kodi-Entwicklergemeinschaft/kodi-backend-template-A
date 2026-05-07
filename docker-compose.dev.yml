@@ -1,0 +1,141 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: kodi-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kodi
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: kodi_db
+    # Bound to localhost only for security - prevents internet exposure
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+      - ./infra/postgres/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U kodi']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kodi-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: kodi-redis-dev
+    restart: unless-stopped
+    # Bound to localhost only for security - prevents internet exposure
+    ports:
+      - '127.0.0.1:6379:6379'
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data_dev:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kodi-network
+
+  rabbitmq:
+    image: rabbitmq:4.1.5-management-alpine
+    container_name: kodi-rabbitmq-dev
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: kodi
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-changeme}
+      RABBITMQ_DEFAULT_VHOST: /
+    # Bound to localhost only for security - prevents internet exposure
+    ports:
+      - '127.0.0.1:5672:5672'
+      - '127.0.0.1:15672:15672'
+      - '127.0.0.1:15692:15692'
+    volumes:
+      - rabbitmq_data_dev:/var/lib/rabbitmq
+      - ./infra/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', 'ping']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - kodi-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: kodi-pgadmin-dev
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@kodi.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+    # Bound to localhost only for security - prevents internet exposure
+    ports:
+      - '127.0.0.1:5050:80'
+    volumes:
+      - pgadmin_data_dev:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - kodi-network
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: kodi-redis-commander-dev
+    restart: unless-stopped
+    environment:
+      # Format: label:hostname:port:dbIndex:password
+      # Connects to Redis service via Docker network with password authentication
+      REDIS_HOSTS: local:redis:6379:0:${REDIS_PASSWORD:-}
+      HTTP_USER: admin
+      HTTP_PASSWORD: admin
+    # Bound to localhost only for security - prevents internet exposure
+    ports:
+      - '127.0.0.1:8081:8081'
+    networks:
+      - kodi-network
+    depends_on:
+      - redis
+
+  # Example service running in dev mode with hot-reload
+  # Uncomment to run services in Docker instead of locally
+  # auth:
+  #   build:
+  #     context: .
+  #     dockerfile: infra/shared/Dockerfile
+  #     target: development
+  #     args:
+  #       APP_NAME: auth
+  #   container_name: kodi-auth-dev
+  #   restart: unless-stopped
+  #   environment:
+  #     NODE_ENV: development
+  #     SERVICE_NAME: auth
+  #     SERVICE_PORT: 3001
+  #     DATABASE_URL: postgresql://kodi:changeme@postgres:5432/kodi_auth?schema=public
+  #     REDIS_URL: redis://redis:6379
+  #     RABBITMQ_URL: amqp://kodi:changeme@rabbitmq:5672
+  #   ports:
+  #     - '3001:3001'
+  #   volumes:
+  #     - .:/app
+  #     - /app/node_modules
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #     - rabbitmq
+  #   networks:
+  #     - kodi-network
+  #   command: npm run dev:auth
+
+volumes:
+  postgres_data_dev:
+  redis_data_dev:
+  rabbitmq_data_dev:
+  pgadmin_data_dev:
+
+networks:
+  kodi-network:
+    driver: bridge

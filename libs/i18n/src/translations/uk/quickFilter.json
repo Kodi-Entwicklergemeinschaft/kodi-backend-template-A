@@ -1,0 +1,25 @@
+{
+  "nearby": {"label": "Поблизу"},
+  "see-all": {"label": "Показати все"},
+  "heading": {
+    "Betriebsart": "Тип закладу",
+    "Küche": "Кухня",
+    "Lage": "Розташування",
+    "Bewusst einkaufen": "Свідомі покупки",
+    "Geschäfte": "Магазини",
+    "Bekleidung": "Одяг",
+    "Ausflugsziele": "Екскурсійні цілі",
+    "Unterhaltung": "Розваги",
+    "Sport & Freizeit": "Спорт та дозвілля",
+    "Erholung & Gesundheit": "Відпочинок та здоров'я",
+    "Mobil & Service": "Мобільність та послуги",
+    "eMobilität": "Електромобільність",
+    "interaktiv": "Інтерактивний",
+    "Öffentliche Gebäude": "Громадські будівлі",
+    "Blaue Linie": "Синя лінія"
+  },
+  "group": {
+    "Orte & Tätigkeiten von Interesse (POI)": "Місця та активності що цікавлять (POI)",
+    "Gastronomien (Restaurants)": "Ресторани"
+  }
+}

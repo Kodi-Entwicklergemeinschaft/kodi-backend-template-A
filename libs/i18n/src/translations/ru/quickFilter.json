@@ -1,0 +1,25 @@
+{
+  "nearby": {"label": "Рядом"},
+  "see-all": {"label": "Показать все"},
+  "heading": {
+    "Betriebsart": "Тип заведения",
+    "Küche": "Кухня",
+    "Lage": "Расположение",
+    "Bewusst einkaufen": "Осознанные покупки",
+    "Geschäfte": "Магазины",
+    "Bekleidung": "Одежда",
+    "Ausflugsziele": "Экскурсионные цели",
+    "Unterhaltung": "Развлечения",
+    "Sport & Freizeit": "Спорт и досуг",
+    "Erholung & Gesundheit": "Отдых и здоровье",
+    "Mobil & Service": "Мобильность и услуги",
+    "eMobilität": "Электромобильность",
+    "interaktiv": "Интерактивный",
+    "Öffentliche Gebäude": "Общественные здания",
+    "Blaue Linie": "Синяя линия"
+  },
+  "group": {
+    "Orte & Tätigkeiten von Interesse (POI)": "Места и активности интересные (POI)",
+    "Gastronomien (Restaurants)": "Рестораны"
+  }
+}

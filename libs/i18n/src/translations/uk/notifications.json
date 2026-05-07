@@ -1,0 +1,40 @@
+{
+  "welcome": {
+    "title": "Ласкаво просимо до {appName}!",
+    "body": "Привіт, {firstName}, ласкаво просимо до {appName}. Ми раді, що ви тут."
+  },
+  "info": {
+    "title": "Інформація",
+    "body": "{content}"
+  },
+  "warning": {
+    "title": "Попередження",
+    "body": "{content}"
+  },
+  "error": {
+    "title": "Помилка",
+    "body": "{content}"
+  },
+  "success": {
+    "title": "Успіх",
+    "body": "{content}"
+  },
+  "alert": {
+    "title": "Тривога",
+    "body": "{content}"
+  },
+  "generic": {
+    "title": "{subject}",
+    "body": "{content}"
+  },
+  "event": {
+    "reminder24h": {
+      "title": "Нагадування про подію: {eventTitle}",
+      "body": "Не забудьте! \"{eventTitle}\" починається через 24 години"
+    },
+    "reminder2h": {
+      "title": "Подія скоро почнеться: {eventTitle}",
+      "body": "\"{eventTitle}\" почнеться через 2 години"
+    }
+  }
+}

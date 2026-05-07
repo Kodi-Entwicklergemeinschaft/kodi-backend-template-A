@@ -1,0 +1,19 @@
+{
+  "email": "{field} muss eine gültige E-Mail-Adresse sein",
+  "required": "{field} ist erforderlich",
+  "minLength": "{field} muss mindestens {min} Zeichen lang sein",
+  "maxLength": "{field} darf höchstens {max} Zeichen lang sein",
+  "min": "{field} muss mindestens {min} sein",
+  "max": "{field} darf höchstens {max} sein",
+  "string": "{field} muss eine Zeichenkette sein",
+  "number": "{field} muss eine Zahl sein",
+  "boolean": "{field} muss ein Boolean sein",
+  "enum": "{field} muss einer der erlaubten Werte sein",
+  "uuid": "{field} muss eine gültige UUID sein",
+  "url": "{field} muss eine gültige URL sein",
+  "date": "{field} muss ein gültiges Datum sein",
+  "array": "{field} muss ein Array sein",
+  "object": "{field} muss ein Objekt sein",
+  "notEmpty": "{field} darf nicht leer sein",
+  "isOptional": "{field} ist optional"
+}

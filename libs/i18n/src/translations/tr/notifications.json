@@ -1,0 +1,40 @@
+{
+  "welcome": {
+    "title": "{appName}'a Hoş Geldiniz!",
+    "body": "Merhaba {firstName}, {appName}'a hoş geldiniz. Burada olduğunuz için mutluyuz."
+  },
+  "info": {
+    "title": "Bilgi",
+    "body": "{content}"
+  },
+  "warning": {
+    "title": "Uyarı",
+    "body": "{content}"
+  },
+  "error": {
+    "title": "Hata",
+    "body": "{content}"
+  },
+  "success": {
+    "title": "Başarı",
+    "body": "{content}"
+  },
+  "alert": {
+    "title": "Alarm",
+    "body": "{content}"
+  },
+  "generic": {
+    "title": "{subject}",
+    "body": "{content}"
+  },
+  "event": {
+    "reminder24h": {
+      "title": "Etkinlik Hatırlatıcısı: {eventTitle}",
+      "body": "Unutmayın! \"{eventTitle}\" 24 saat içinde başlıyor"
+    },
+    "reminder2h": {
+      "title": "Etkinlik Yakında Başlıyor: {eventTitle}",
+      "body": "\"{eventTitle}\" 2 saat içinde başlıyor"
+    }
+  }
+}

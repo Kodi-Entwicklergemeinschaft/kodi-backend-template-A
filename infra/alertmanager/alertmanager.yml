@@ -1,0 +1,116 @@
+# Alertmanager configuration for KODI Microservices
+global:
+  resolve_timeout: 5m
+  # SMTP configuration (update with your SMTP settings)
+  # smtp_smarthost: 'localhost:587'
+  # smtp_from: 'alertmanager@kodi.local'
+  # smtp_auth_username: 'alertmanager@kodi.local'
+  # smtp_auth_password: 'password'
+
+# Templates for alert notifications
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# Route configuration
+route:
+  receiver: 'default'
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  routes:
+    # Critical alerts route to oncall
+    - match:
+        severity: critical
+      receiver: 'oncall'
+      continue: true
+
+    # Warning alerts route to team channel
+    - match:
+        severity: warning
+      receiver: 'team'
+
+    # Database-related alerts
+    - match:
+        type: database
+      receiver: 'database-team'
+      group_wait: 5s
+
+    # Message queue alerts
+    - match:
+        type: message-queue
+      receiver: 'infrastructure-team'
+
+# Inhibition rules (suppress certain alerts when others are firing)
+inhibit_rules:
+  # Suppress warning-level alerts if critical alerts are firing for the same service
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'service', 'cluster']
+
+# Receivers
+receivers:
+  # Default receiver (fallback)
+  - name: 'default'
+    email_configs:
+      - to: 'admin@kodi.com'
+        headers:
+          Subject: 'KODI Alert: {{ .GroupLabels.alertname }}'
+        html: |
+          <h2>Alert: {{ .GroupLabels.alertname }}</h2>
+          <p><strong>Service:</strong> {{ .GroupLabels.service }}</p>
+          <p><strong>Severity:</strong> {{ .CommonLabels.severity }}</p>
+          <h3>Alerts:</h3>
+          {{ range .Alerts }}
+          <p>
+            <strong>Status:</strong> {{ .Status }}<br>
+            <strong>Summary:</strong> {{ .Annotations.summary }}<br>
+            <strong>Description:</strong> {{ .Annotations.description }}
+          </p>
+          {{ end }}
+
+  # On-call receiver for critical alerts
+  - name: 'oncall'
+    email_configs:
+      - to: 'oncall@kodi.local'
+        headers:
+          Subject: '🚨 CRITICAL: {{ .GroupLabels.alertname }} - {{ .GroupLabels.service }}'
+    # Uncomment and configure for Slack integration
+    # slack_configs:
+    #   - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+    #     channel: '#alerts-critical'
+    #     title: 'CRITICAL Alert'
+    #     text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+    # Uncomment and configure for PagerDuty integration
+    # pagerduty_configs:
+    #   - service_key: 'YOUR_PAGERDUTY_SERVICE_KEY'
+    #     description: '{{ .GroupLabels.alertname }}'
+
+  # Team channel receiver
+  - name: 'team'
+    email_configs:
+      - to: 'team@kodi.local'
+        headers:
+          Subject: 'KODI Alert: {{ .GroupLabels.alertname }}'
+    # Uncomment for Slack team channel
+    # slack_configs:
+    #   - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+    #     channel: '#alerts-team'
+    #     title: 'Team Alert'
+    #     text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+
+  # Database team receiver
+  - name: 'database-team'
+    email_configs:
+      - to: 'dba@kodi.local'
+        headers:
+          Subject: 'Database Alert: {{ .GroupLabels.alertname }}'
+
+  # Infrastructure team receiver
+  - name: 'infrastructure-team'
+    email_configs:
+      - to: 'infra@kodi.local'
+        headers:
+          Subject: 'Infrastructure Alert: {{ .GroupLabels.alertname }}'

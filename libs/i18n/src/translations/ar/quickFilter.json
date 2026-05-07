@@ -1,0 +1,25 @@
+{
+  "nearby": {"label": "بالقرب"},
+  "see-all": {"label": "عرض الكل"},
+  "heading": {
+    "Betriebsart": "نوع المنشأة",
+    "Küche": "المطبخ",
+    "Lage": "الموقع",
+    "Bewusst einkaufen": "التسوق الواعي",
+    "Geschäfte": "المتاجر",
+    "Bekleidung": "الملابس",
+    "Ausflugsziele": "أماكن السياحة",
+    "Unterhaltung": "الترفيه",
+    "Sport & Freizeit": "الرياضة والترفيه",
+    "Erholung & Gesundheit": "الاستراحة والصحة",
+    "Mobil & Service": "التنقل والخدمات",
+    "eMobilität": "التنقل الكهربائي",
+    "interaktiv": "تفاعلي",
+    "Öffentliche Gebäude": "المباني العامة",
+    "Blaue Linie": "الخط الأزرق"
+  },
+  "group": {
+    "Orte & Tätigkeiten von Interesse (POI)": "الأماكن والأنشطة ذات الاهتمام (POI)",
+    "Gastronomien (Restaurants)": "المطاعم"
+  }
+}

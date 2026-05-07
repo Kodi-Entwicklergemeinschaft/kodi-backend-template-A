@@ -1,0 +1,25 @@
+{
+  "nearby": {"label": "I närheten"},
+  "see-all": {"label": "Se alla"},
+  "heading": {
+    "Betriebsart": "Verksamhetstyp",
+    "Küche": "Kök",
+    "Lage": "Läge",
+    "Bewusst einkaufen": "Medveten shopping",
+    "Geschäfte": "Butiker",
+    "Bekleidung": "Kläder",
+    "Ausflugsziele": "Utflyktsmål",
+    "Unterhaltung": "Underhållning",
+    "Sport & Freizeit": "Sport och fritid",
+    "Erholung & Gesundheit": "Avkoppling och hälsa",
+    "Mobil & Service": "Mobilitet och service",
+    "eMobilität": "E-mobilitet",
+    "interaktiv": "Interaktiv",
+    "Öffentliche Gebäude": "Offentliga byggnader",
+    "Blaue Linie": "Blå linjen"
+  },
+  "group": {
+    "Orte & Tätigkeiten von Interesse (POI)": "Platser och aktiviteter av intresse (POI)",
+    "Gastronomien (Restaurants)": "Restauranger"
+  }
+}

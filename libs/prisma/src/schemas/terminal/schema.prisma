@@ -1,0 +1,40 @@
+// Prisma schema for Terminal microservice
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../../../../../node_modules/.prisma/client-terminal"
+  binaryTargets = ["native", "linux-musl"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("TERMINAL_DATABASE_URL")
+}
+
+// Terminal model - for managing city terminals
+model Terminal {
+  id          String         @id @default(uuid())
+  name        String
+  code        String         @unique
+  cityId      String
+  location    Json?          // { latitude, longitude, address }
+  status      TerminalStatus @default(ACTIVE)
+  description String?
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime?
+
+  @@index([code])
+  @@index([cityId])
+  @@index([status])
+  @@index([isActive])
+  @@index([deletedAt])
+  @@map("terminals")
+}
+
+enum TerminalStatus {
+  ACTIVE      // Terminal is operational
+  INACTIVE    // Terminal is not in use
+  MAINTENANCE // Terminal is under maintenance
+  OFFLINE     // Terminal is offline/unreachable
+}

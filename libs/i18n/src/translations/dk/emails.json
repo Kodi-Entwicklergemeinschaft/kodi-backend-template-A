@@ -1,0 +1,23 @@
+{
+  "verification": {
+    "subject": "Velkommen til {appName}! Bekræft venligst din e-mailadresse",
+    "greeting": "Velkommen til {appName}{firstNamePart}!",
+    "greetingKodi": "Velkommen til {appName}{firstNamePart}!",
+    "intro": "Tak fordi du har registreret dig. For at færdiggøre registreringen og sikre din konto skal du bekræfte din e-mailadresse.",
+    "cta": "Bekræft e-mailadresse",
+    "expiryNotice": "<strong>Vigtigt:</strong> Dette bekræftelseslink udløber om 24 timer. Hvis du ikke har oprettet kontoen, kan du ignorere e-mailen eller bruge linket nedenfor til at annullere.",
+    "cancelText": "Hvis du ikke har oprettet denne konto, kan du",
+    "cancelLinkText": "klikke her for at annullere",
+    "fallback": "Hvis knappen ikke virker, så kopier og indsæt dette link i din browser:"
+  },
+  "passwordReset": {
+    "subject": "Nulstil din {appName} adgangskode",
+    "greeting": "Hej{firstNamePart}!",
+    "greetingKodi": "Hej{firstNamePart}!",
+    "intro": "Vi har modtaget en anmodning om at nulstille din adgangskode. Klik på knappen nedenfor for at nulstille den.",
+    "cta": "Nulstil adgangskode",
+    "expiryNotice": "Dette link udløber om 1 time.",
+    "securityNotice": "Hvis du ikke har anmodet om at nulstille din adgangskode, kan du ignorere denne e-mail. Din adgangskode forbliver uændret.",
+    "fallback": "Hvis knappen ikke virker, så kopier og indsæt dette link i din browser:"
+  }
+}

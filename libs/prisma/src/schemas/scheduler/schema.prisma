@@ -1,0 +1,52 @@
+// Prisma schema for Scheduler microservice
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../../../../../node_modules/.prisma/client-scheduler"
+  binaryTargets = ["native", "linux-musl"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("SCHEDULER_DATABASE_URL")
+}
+
+// Schedule model - for cron jobs and scheduled tasks
+model Schedule {
+  id             String    @id @default(uuid())
+  name           String
+  description    String?
+  cronExpression String
+  payload        Json?
+  isEnabled      Boolean   @default(true)
+  lastRun        DateTime?
+  lastRunStatus  String?
+  nextRun        DateTime?
+  runCount       Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([isEnabled])
+  @@index([nextRun])
+  @@index([name])
+  @@map("schedules")
+}
+
+// ScheduleRunLog model - Tracks each execution of a scheduled task
+// Links to notifications generated during that run for auditing and analytics
+model ScheduleRunLog {
+  id          String   @id @default(uuid())
+  scheduleId  String   // Reference to Schedule.id (no FK due to multi-database architecture)
+  startedAt   DateTime @default(now())
+  finishedAt  DateTime? // Set when run completes
+  status      String   // "SUCCESS", "FAILED", "PARTIAL"
+  runSummary  Json?    // Aggregated stats (e.g., { sent24h: 10, sent2h: 5, errors: 0 })
+  errorMessage String? // Error message if status is FAILED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([scheduleId])
+  @@index([scheduleId, createdAt])
+  @@index([status])
+  @@index([startedAt])
+  @@map("schedule_run_logs")
+}

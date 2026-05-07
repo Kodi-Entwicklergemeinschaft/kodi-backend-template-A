@@ -1,0 +1,40 @@
+{
+  "welcome": {
+    "title": "به {appName} خوش آمدید!",
+    "body": "سلام {firstName}، به {appName} خوش آمدید. خوشحالیم که اینجا هستید."
+  },
+  "info": {
+    "title": "اطلاعات",
+    "body": "{content}"
+  },
+  "warning": {
+    "title": "هشدار",
+    "body": "{content}"
+  },
+  "error": {
+    "title": "خطا",
+    "body": "{content}"
+  },
+  "success": {
+    "title": "موفقیت",
+    "body": "{content}"
+  },
+  "alert": {
+    "title": "هشدار",
+    "body": "{content}"
+  },
+  "generic": {
+    "title": "{subject}",
+    "body": "{content}"
+  },
+  "event": {
+    "reminder24h": {
+      "title": "یادآوری رویداد: {eventTitle}",
+      "body": "فراموش نکنید! \"{eventTitle}\" در 24 ساعت آینده شروع می‌شود"
+    },
+    "reminder2h": {
+      "title": "رویداد به زودی شروع می‌شود: {eventTitle}",
+      "body": "\"{eventTitle}\" در 2 ساعت آینده شروع می‌شود"
+    }
+  }
+}

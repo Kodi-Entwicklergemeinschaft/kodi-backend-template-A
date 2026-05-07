@@ -1,0 +1,88 @@
+# Alert rules for KODI Microservices
+groups:
+  - name: kodi_microservices
+    interval: 30s
+    rules:
+      # Service availability alerts
+      - alert: ServiceDown
+        expr: up{type="microservice"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.service }} is down"
+          description: "Service {{ $labels.service }} has been down for more than 1 minute."
+
+      # High error rate alerts
+      - alert: HighErrorRate
+        expr: |
+          rate(kodi_http_request_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate in {{ $labels.service }}"
+          description: "Service {{ $labels.service }} has error rate of {{ $value }} errors/sec for more than 5 minutes."
+
+      # High request latency alerts
+      - alert: HighRequestLatency
+        expr: |
+          histogram_quantile(0.95, rate(kodi_http_request_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High request latency in {{ $labels.service }}"
+          description: "Service {{ $labels.service }} has 95th percentile latency of {{ $value }}s for more than 5 minutes."
+
+      # Memory usage alerts
+      - alert: HighMemoryUsage
+        expr: |
+          (nodejs_heap_size_total_bytes / nodejs_heap_size_limit_bytes) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage in {{ $labels.service }}"
+          description: "Service {{ $labels.service }} is using {{ $value | humanizePercentage }} of available heap memory."
+
+      # Database connection alerts
+      - alert: DatabaseConnectionFailure
+        expr: up{type="database"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database connection failure"
+          description: "Cannot connect to database {{ $labels.service }}."
+
+      # Redis connection alerts
+      - alert: RedisConnectionFailure
+        expr: up{type="cache"} == 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis connection failure"
+          description: "Cannot connect to Redis cache."
+
+      # RabbitMQ connection alerts
+      - alert: RabbitMQConnectionFailure
+        expr: up{type="message-queue"} == 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "RabbitMQ connection failure"
+          description: "Cannot connect to RabbitMQ message queue."
+
+      # High queue depth alerts
+      - alert: HighQueueDepth
+        expr: |
+          rabbitmq_queue_messages > 10000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High queue depth in RabbitMQ"
+          description: "Queue {{ $labels.queue }} has {{ $value }} messages, indicating potential processing issues."

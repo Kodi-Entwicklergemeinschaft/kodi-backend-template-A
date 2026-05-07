@@ -1,0 +1,23 @@
+{
+  "verification": {
+    "subject": "{appName}'e hoş geldiniz! Lütfen e-posta adresinizi doğrulayın",
+    "greeting": "{appName}'e hoş geldiniz{firstNamePart}!",
+    "greetingKodi": "{appName}'e hoş geldiniz{firstNamePart}!",
+    "intro": "Kaydolduğunuz için teşekkür ederiz. Kaydınızı tamamlamak ve hesabınızı korumak için lütfen e-posta adresinizi doğrulayın.",
+    "cta": "E-posta adresini doğrula",
+    "expiryNotice": "<strong>Önemli:</strong> Bu doğrulama bağlantısı 24 saat içinde sona erecektir. Eğer bu hesabı siz oluşturmadıysanız, bu e-postayı yok sayabilir veya aşağıdaki bağlantıyı kullanarak iptal edebilirsiniz.",
+    "cancelText": "Bu hesabı siz oluşturmadıysanız,",
+    "cancelLinkText": "iptal etmek için buraya tıklayın",
+    "fallback": "Düğme çalışmazsa bu bağlantıyı kopyalayıp tarayıcınıza yapıştırın:"
+  },
+  "passwordReset": {
+    "subject": "{appName} Şifrenizi Sıfırlayın",
+    "greeting": "Merhaba{firstNamePart}!",
+    "greetingKodi": "Merhaba{firstNamePart}!",
+    "intro": "Şifrenizi sıfırlamak için bir istek aldık. Sıfırlamak için aşağıdaki düğmeye tıklayın.",
+    "cta": "Şifreyi Sıfırla",
+    "expiryNotice": "Bu bağlantı 1 saat içinde sona erecektir.",
+    "securityNotice": "Eğer şifre sıfırlama talebinde bulunmadıysanız, bu e-postayı görmezden gelebilirsiniz. Şifreniz değişmeden kalacaktır.",
+    "fallback": "Düğme çalışmazsa bu bağlantıyı kopyalayıp tarayıcınıza yapıştırın:"
+  }
+}
