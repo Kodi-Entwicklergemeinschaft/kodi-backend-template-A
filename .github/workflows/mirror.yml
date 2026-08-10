@@ -1,0 +1,24 @@
+# Caller — mirror this repo to gitlab.opencode.de on every push, daily, or manually.
+# Place at: .github/workflows/mirror.yml  (repo root)
+name: Mirror to openCode
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["**"]
+  workflow_dispatch:        # manual run = seed the mirror the first time
+  schedule:
+    - cron: "0 3 * * *"     # daily safety re-sync (03:00 UTC)
+
+# Avoid overlapping mirror runs on rapid pushes.
+concurrency:
+  group: mirror-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    uses: Kodi-Entwicklergemeinschaft/.github/.github/workflows/mirror-to-opencode.yml@main
+    with:
+      gitlab_repo: kodi/kodi-backend-template-A
+    secrets:
+      OPENCODE_GITLAB_TOKEN: ${{ secrets.OPENCODE_GITLAB_TOKEN }}
